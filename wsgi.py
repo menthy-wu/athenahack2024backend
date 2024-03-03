@@ -4,8 +4,9 @@ from flask import Flask, request
 
 from drawsy import drawsy
 from gesture import gesture
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/drawsy", methods=["POST"])
 async def drawsyapi():
@@ -19,4 +20,11 @@ async def gestureapi():
     result = await gesture(image['image'])
     return result
 
-app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+@app.route("/", methods=["GET"])
+async def hello():
+    print("hello")
+    return "hello"
+
+
+if __name__ == "__main__":
+    app.run( debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
