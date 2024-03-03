@@ -38,6 +38,7 @@ async def call(base64_audio, contacts):
                         "name": "John Doe",
                         "phone number": "123-456-7890",
                         "mode": "call" | "text"
+                        "message": only if mode is "text"
                  }
                  """},
                 {"role": "user", "content": f"Given the following contact list:\n{contacts}\nand the recording: '{result['text']}'"}
