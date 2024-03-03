@@ -4,6 +4,7 @@ from flask import Flask, request
 
 from drawsy import drawsy
 from gesture import gesture
+from call import call
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +19,12 @@ async def drawsyapi():
 async def gestureapi():
     image = request.form
     result = await gesture(image['image'])
+    return result
+
+@app.route("/call", methods=["POST"])
+async def callapi():
+    data = request.form
+    result = await call(data['audio'],data['contacts'] )
     return result
 
 @app.route("/", methods=["GET"])
