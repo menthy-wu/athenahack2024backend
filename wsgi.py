@@ -1,7 +1,6 @@
 import os
 
-from flask import Flask, request
-
+from flask import Flask, request, jsonify
 from drawsy import drawsy
 from gesture import gesture
 from call import call
@@ -11,13 +10,13 @@ CORS(app)
 
 @app.route("/drawsy", methods=["POST"])
 async def drawsyapi():
-    image = request.form
+    image = request.json
     result = await drawsy(image['image'])
     return result
 
 @app.route("/gesture", methods=["POST"])
 async def gestureapi():
-    image = request.form
+    image = request.json
     result = await gesture(image['image'])
     return result
 
@@ -30,7 +29,7 @@ async def callapi():
 @app.route("/", methods=["GET"])
 async def hello():
     print("hello")
-    return "hello"
+    return jsonify(hello="world")
 
 
 if __name__ == "__main__":
