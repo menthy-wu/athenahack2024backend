@@ -3,6 +3,7 @@ import os
 from flask import Flask, request, jsonify
 from drawsy import drawsy
 from gesture import gesture
+from call import call
 from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +20,13 @@ async def gestureapi():
     result = await gesture(image['image'])
     return result
 
-@app.route("/", methods=["POST"])
+@app.route("/call", methods=["POST"])
+async def callapi():
+    data = request.form
+    result = await call(data['audio'],data['contacts'] )
+    return result
+
+@app.route("/", methods=["GET"])
 async def hello():
     print("hello")
     return jsonify(hello="world")
