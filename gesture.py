@@ -1,5 +1,4 @@
 import cv2
-import tensorflow as tf
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -21,10 +20,12 @@ async def gesture(base64Image):
 
     recognition_result = recognizer.recognize(image)
     gesture = "No gesture detected"
-
+    score = 0
     try:
         gesture = (recognition_result.gestures[0][0].category_name)
+        score = (recognition_result.gestures[0][0].score)
     except:
         gesture = "No gesture detected"
-    
-    return  jsonify(gesture=gesture)
+        score = 0
+    print(gesture)
+    return  jsonify(gesture=gesture,score=score)
