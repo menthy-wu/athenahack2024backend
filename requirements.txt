@@ -1,3 +1,5 @@
 Flask==3.0.2
 tensorflow==2.15.0
 hume=0.4.1
+protobuf=4.25.3
+mediapipe=0.10.10
