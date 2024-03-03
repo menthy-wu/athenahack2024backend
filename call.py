@@ -3,8 +3,8 @@ import base64
 import os
 from dotenv import load_dotenv
 from flask import jsonify 
-
-
+import whisper
+import json
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 async def call(base64_audio, contacts):
 
@@ -14,39 +14,49 @@ async def call(base64_audio, contacts):
         audio_file.write(binary_audio)
     
     try:
-        transcription_response = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=open(audio_file_path, "rb")
-        )
-        transcription_text = transcription_response['choices'][0]['text']
+        model = whisper.load_model("base")
+        result = model.transcribe("temp_audio_file.mp3")
+        print(result["text"])
+        # with open(audio_file_path, "rb") as audio_file:
+        #     transcription_response = client.audio.transcriptions.create(
+        #         model="whisper-1",
+        #         file=(audio_file)
+        # )
+        # transcription_text = transcription_response.text
+        # print(transcription_text)
         
         # Prompt Sample
         # prompt = f"Given the following contact list:\n{contacts}\nand the recording: '{transcription_text}'"
         
         # Send the prompt to ChatGPT
-        chat_response = client.completions.create(
-            model="gpt-3.5-turbo-0125",  
-            response_format={"type", "json_object"},
+        chat_response = client.chat.completions.create(
+            model="gpt-4-turbo-preview",
             messages=[
-              {"role": "system", "content": "return me a json with a prop name and phone number. If this person is not in the list, return me empty string for both these props"},
-              {"role": "user", "content": f"""Given the following contact list:\n{contacts}\nand the recording: {transcription_text}"""}
-            ],
-            temperature=0,
-            max_tokens=100,
-            top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0
+                {"role": "system", "content": """Given a contact list and a recording, return a JSON object with a 'name', 'mode', and 'phone number'. If the person is not in the list, return an empty string for all properties.
+                 Example: 
+                 {
+                        "name": "John Doe",
+                        "phone number": "123-456-7890",
+                        "mode": "call" | "text"
+                 }
+                 """},
+                {"role": "user", "content": f"Given the following contact list:\n{contacts}\nand the recording: '{result['text']}'"}
+            ]
         )
 
-        
-        response_text = chat_response['choices'][0]['text'].strip()
-        name, number = response_text.split(', ')
-        name = name.split(': ')[1]
-        number = number.split(': ')[1]
-        
-        print(response_text)
+        # Assuming the chat_response['choices'][0]['message']['content'] contains the JSON string with 'name' and 'phone number'
+        response_content = chat_response.choices[0].message.content
+        print(response_content)
 
-        return jsonify({'name': name, 'number': number})
+    
+        # Extract ```json``` from the response
+        if response_content.startswith("```json"):
+            response_content = response_content.split("```json")[1]
+        if response_content.endswith("```"):
+            response_content = response_content.split("```")[0]
+        obj = json.loads(response_content)
+        print(obj)
+        return jsonify(obj)
 
     except Exception as e:
         return jsonify({'error': str(e)})

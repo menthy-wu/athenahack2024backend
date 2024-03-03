@@ -22,7 +22,8 @@ async def gestureapi():
 
 @app.route("/call", methods=["POST"])
 async def callapi():
-    data = request.form
+    data = request.json
+    print(data['audio'])
     result = await call(data['audio'],data['contacts'] )
     return result
 

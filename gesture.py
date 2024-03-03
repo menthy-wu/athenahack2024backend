@@ -19,13 +19,13 @@ async def gesture(base64Image):
     image = mp.Image( image_format=mp.ImageFormat.SRGB, data=np.asarray(image))
 
     recognition_result = recognizer.recognize(image)
-    gesture = "No gesture detected"
+    gesture = ""
     score = 0
     try:
         gesture = (recognition_result.gestures[0][0].category_name)
         score = (recognition_result.gestures[0][0].score)
     except:
-        gesture = "No gesture detected"
+        gesture = ""
         score = 0
     print(gesture)
     return  jsonify(gesture=gesture,score=score)
